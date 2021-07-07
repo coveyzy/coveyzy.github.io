@@ -20,7 +20,7 @@
   <meta name="author" content="Coveyzy">
   <meta name="keywords" content="">
   
-  <title>公告 - Coveyzy</title>
+  <title>使用permission.pl脚本修复节点文件权限 - Coveyzy</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
@@ -165,7 +165,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="公告">
+            <span class="h2" id="subtitle" title="使用permission.pl脚本修复节点文件权限">
               
             </span>
 
@@ -180,8 +180,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2021-05-30 21:46" pubdate>
-        2021年5月30日星期日晚上9点46分
+      <time datetime="2021-07-07 10:58" pubdate>
+        2021年7月7日星期三上午10点58分
       </time>
     </span>
   
@@ -192,7 +192,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      12 字
+      672 字
     </span>
   
 
@@ -202,7 +202,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1
+      14
        分钟
     </span>
   
@@ -240,24 +240,168 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">公告</h1>
+            <h1 style="display: none">使用permission.pl脚本修复节点文件权限</h1>
             
               <p class="note note-info">
                 
-                  本文最后更新于：1 个月前
+                  本文最后更新于：2 分钟前
                 
               </p>
             
             <div class="markdown-body">
-              <p>临近毕业</p>
-<p>事有点多</p>
-<p>暂停更新</p>
+              <blockquote>
+<p><code>Script to capture and restore file permission in a directory (for eg. ORACLE_HOME) (Doc ID 1515018.1)</code></p>
+<p>问题描述：RAC两个节点中，在节点2执行了<code>chown -R oracle:oinstall /u01</code> 导致节点2 文件权限不对，集群状态异常</p>
+<p>解决办法：通过官方提供的 <code>permission.pl</code> 脚本进行修复</p>
+</blockquote>
+<ol>
+<li>校验节点2权限问题</li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"># 校验失败，说明权限有异常
+[grid<span class="hljs-variable">@rac2</span> <span class="hljs-operator">~</span>]$ cluvfy comp software <span class="hljs-operator">-</span>n <span class="hljs-keyword">all</span> <span class="hljs-operator">-</span>verbose
+
+Verifying software
+
+<span class="hljs-keyword">Check</span>: Software
+
+<span class="hljs-number">3162</span> files verified
+
+Software <span class="hljs-keyword">check</span> failed
+
+Verification <span class="hljs-keyword">of</span> software was failed.</code></pre></div>
+
+
+
+<ol start="2">
+<li>1节点执行修复脚本</li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"># 以root用户执行.<span class="hljs-operator">/</span>permission.pl <span class="hljs-operator">&lt;</span>Path name <span class="hljs-keyword">to</span> capture permission<span class="hljs-operator">&gt;</span>
+[root<span class="hljs-variable">@rac1</span> u01]# .<span class="hljs-operator">/</span>permission.pl <span class="hljs-operator">/</span>u01<span class="hljs-operator">/</span>
+.........
+Following log files <span class="hljs-keyword">are</span> generated
+logfile      : permission<span class="hljs-operator">-</span>Wed<span class="hljs-operator">-</span>Jul<span class="hljs-number">-07</span><span class="hljs-number">-10</span><span class="hljs-number">-21</span><span class="hljs-number">-13</span><span class="hljs-number">-2021</span>
+Command file : restore<span class="hljs-operator">-</span>perm<span class="hljs-operator">-</span>Wed<span class="hljs-operator">-</span>Jul<span class="hljs-number">-07</span><span class="hljs-number">-10</span><span class="hljs-number">-21</span><span class="hljs-number">-13</span><span class="hljs-number">-2021.</span>cmd
+Linecount : <span class="hljs-number">62264</span>
+
+
+[root<span class="hljs-variable">@rac1</span> u01]# ls <span class="hljs-operator">-</span>lrt
+total <span class="hljs-number">17556</span>
+drwxrwxr<span class="hljs-operator">-</span>x. <span class="hljs-number">7</span> grid oinstall     <span class="hljs-number">4096</span> Jan <span class="hljs-number">27</span> <span class="hljs-number">16</span>:<span class="hljs-number">14</span> soft
+drwxr<span class="hljs-operator">-</span>xr<span class="hljs-operator">-</span>x  <span class="hljs-number">6</span> root oinstall       <span class="hljs-number">66</span> Jan <span class="hljs-number">28</span> <span class="hljs-number">12</span>:<span class="hljs-number">34</span> app
+<span class="hljs-operator">-</span>rwxr<span class="hljs-operator">-</span>xr<span class="hljs-operator">-</span>x  <span class="hljs-number">1</span> root root         <span class="hljs-number">2451</span> Mar <span class="hljs-number">31</span> <span class="hljs-number">18</span>:<span class="hljs-number">08</span> permission.pl
+<span class="hljs-operator">-</span>rw<span class="hljs-operator">-</span>r<span class="hljs-comment">--r--  1 root root     11869417 Jul  7 10:22 restore-perm-Wed-Jul-07-10-21-13-2021.cmd</span>
+<span class="hljs-operator">-</span>rw<span class="hljs-operator">-</span>r<span class="hljs-comment">--r--  1 root root      6098198 Jul  7 10:22 permission-Wed-Jul-07-10-21-13-2021</span></code></pre></div>
+
+<p>在当前目录下会生成两个文件:</p>
+<p>a. <strong>permission-<time stamp></strong> - This contains file permission in octal value, owner and group information of the files captured<br>b. <strong>restore-perm-<time stamp>.cmd</strong> - This contains command to change the permission, owner, and group of the captured files</p>
+<ol start="3">
+<li>将生成的两个文件拷贝到2节点</li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs subunit">[root@rac1 u01]# scp permission-Wed-Jul<span class="hljs-string">-07</span><span class="hljs-string">-09</span><span class="hljs-string">-41</span><span class="hljs-string">-25</span><span class="hljs-string">-2021</span> root@rac2:/u01
+
+[root@rac1 u01]# scp restore-perm-Wed-Jul<span class="hljs-string">-07</span><span class="hljs-string">-09</span><span class="hljs-string">-41</span><span class="hljs-string">-25</span><span class="hljs-string">-2021</span>.cmd root@rac2:/u01/</code></pre></div>
+
+
+
+<ol start="4">
+<li>修改<code>restore-perm-&lt;time stamp&gt;.cmd</code>中的信息</li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"># 需要修改主机名、数据库实例名、ASM实例名
+[root<span class="hljs-variable">@rac2</span> u01]$ vi restore<span class="hljs-operator">-</span>perm<span class="hljs-operator">-</span>Wed<span class="hljs-operator">-</span>Jul<span class="hljs-number">-07</span><span class="hljs-number">-09</span><span class="hljs-number">-41</span><span class="hljs-number">-25</span><span class="hljs-number">-2021.</span>cmd
+
+:<span class="hljs-operator">%</span>s<span class="hljs-operator">/</span>rac1<span class="hljs-operator">/</span>rac2<span class="hljs-operator">/</span>g
+:<span class="hljs-operator">%</span>s<span class="hljs-operator">/</span>racdb1<span class="hljs-operator">/</span>racdb2<span class="hljs-operator">/</span>g
+:<span class="hljs-operator">%</span>s<span class="hljs-operator">/</span>ASM1<span class="hljs-operator">/</span>ASM2<span class="hljs-operator">/</span>g
+:<span class="hljs-operator">%</span>s<span class="hljs-operator">/</span>asm1<span class="hljs-operator">/</span>asm2<span class="hljs-operator">/</span>g
+
+# 赋予<span class="hljs-number">755</span>权限
+[root<span class="hljs-variable">@rac2</span> u01]# chmod <span class="hljs-number">755</span> restore<span class="hljs-operator">-</span>perm<span class="hljs-operator">-</span>Wed<span class="hljs-operator">-</span>Jul<span class="hljs-number">-07</span><span class="hljs-number">-09</span><span class="hljs-number">-41</span><span class="hljs-number">-25</span><span class="hljs-number">-2021.</span>cmd</code></pre></div>
+
+
+
+<ol start="5">
+<li>以root用户执行<code>restore-perm-&lt;time stamp&gt;.cmd</code>文件</li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">[root<span class="hljs-variable">@rac2</span> u01]# .<span class="hljs-operator">/</span>restore<span class="hljs-operator">-</span>perm<span class="hljs-operator">-</span>Wed<span class="hljs-operator">-</span>Jul<span class="hljs-number">-07</span><span class="hljs-number">-09</span><span class="hljs-number">-41</span><span class="hljs-number">-25</span><span class="hljs-number">-2021.</span>cmd</code></pre></div>
+
+<p>屏幕输出中会有<code>chown</code>和<code>chmod</code>报错，主要原因为一些日志文件不存在引起</p>
+<ol start="6">
+<li>重启主机或集群</li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">[grid<span class="hljs-variable">@rac2</span> <span class="hljs-operator">~</span>]$ crsctl stat res <span class="hljs-operator">-</span>t
+<span class="hljs-comment">--------------------------------------------------------------------------------</span>
+NAME           TARGET  STATE        SERVER                   STATE_DETAILS
+<span class="hljs-comment">--------------------------------------------------------------------------------</span>
+<span class="hljs-keyword">Local</span> Resources
+<span class="hljs-comment">--------------------------------------------------------------------------------</span>
+ora.ARCH.dg
+               ONLINE  ONLINE       rac1
+               ONLINE  ONLINE       rac2
+ora.CRS.dg
+               ONLINE  ONLINE       rac1
+               ONLINE  ONLINE       rac2
+ora.DATA.dg
+               ONLINE  ONLINE       rac1
+               ONLINE  ONLINE       rac2
+ora.LISTENER.lsnr
+               ONLINE  ONLINE       rac1
+               ONLINE  ONLINE       rac2
+ora.asm
+               ONLINE  ONLINE       rac1                     Started
+               ONLINE  ONLINE       rac2                     Started
+ora.gsd
+               OFFLINE OFFLINE      rac1
+               OFFLINE OFFLINE      rac2
+ora.net1.network
+               ONLINE  ONLINE       rac1
+               ONLINE  ONLINE       rac2
+ora.ons
+               ONLINE  ONLINE       rac1
+               ONLINE  ONLINE       rac2
+<span class="hljs-comment">--------------------------------------------------------------------------------</span>
+Cluster Resources
+<span class="hljs-comment">--------------------------------------------------------------------------------</span>
+ora.LISTENER_SCAN1.lsnr
+      <span class="hljs-number">1</span>        ONLINE  ONLINE       rac1
+ora.cvu
+      <span class="hljs-number">1</span>        ONLINE  ONLINE       rac1
+ora.oc4j
+      <span class="hljs-number">1</span>        ONLINE  ONLINE       rac1
+ora.rac1.vip
+      <span class="hljs-number">1</span>        ONLINE  ONLINE       rac1
+ora.rac2.vip
+      <span class="hljs-number">1</span>        ONLINE  ONLINE       rac2
+ora.racdb.db
+      <span class="hljs-number">1</span>        ONLINE  ONLINE       rac1                     <span class="hljs-keyword">Open</span>
+      <span class="hljs-number">2</span>        ONLINE  ONLINE       rac2                     <span class="hljs-keyword">Open</span>
+ora.scan1.vip
+      <span class="hljs-number">1</span>        ONLINE  ONLINE       rac1
+[grid<span class="hljs-variable">@rac2</span> <span class="hljs-operator">~</span>]$</code></pre></div>
+
+<hr>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>权限修复成功的前提是必须有一个节点的权限是正常的，否则无法通过此方式进行修复</p>
 
             </div>
             <hr>
             <div>
               <div class="post-metas mb-3">
                 
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/ORACLE/">ORACLE</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/RAC/">RAC</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E4%BF%AE%E5%A4%8D/">修复</a>
+                    
+                  </div>
                 
               </div>
               
@@ -272,15 +416,15 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2021/07/07/%E4%BD%BF%E7%94%A8permission-pl%E8%84%9A%E6%9C%AC%E4%BF%AE%E5%A4%8D%E8%8A%82%E7%82%B9%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">使用permission.pl脚本修复节点文件权限</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/2021/05/30/%E5%85%AC%E5%91%8A/">
+                        <span class="hidden-mobile">公告</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
