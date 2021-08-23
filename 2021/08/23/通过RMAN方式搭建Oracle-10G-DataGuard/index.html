@@ -1,0 +1,832 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/blog.png">
+  <link rel="icon" href="/img/blog.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Coveyzy blog site">
+  <meta name="author" content="Coveyzy">
+  <meta name="keywords" content="">
+  
+  <title>通过RMAN方式搭建Oracle 10G DataGuard - Coveyzy</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.6.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.8.10","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":"§"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":false,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":6},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"baidu":"0e72dfeefd44eb1c4e004d18d1d97438","google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Coveyzy</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/Hippopx.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="通过RMAN方式搭建Oracle 10G DataGuard">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-author" aria-hidden="true"></i>
+      Coveyzy
+    </span>
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-08-23 14:46" pubdate>
+        2021年8月23日星期一下午2点46分
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      29
+       分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">通过RMAN方式搭建Oracle 10G DataGuard</h1>
+            
+              <p class="note note-info">
+                
+                  本文最后更新于：几秒前
+                
+              </p>
+            
+            <div class="markdown-body">
+              <h1 id="通过RMAN方式搭建Oracle-10G-DataGuard"><a href="#通过RMAN方式搭建Oracle-10G-DataGuard" class="headerlink" title="通过RMAN方式搭建Oracle 10G DataGuard"></a>通过RMAN方式搭建Oracle 10G DataGuard</h1><blockquote>
+<p>如有错误之处，恳请指正。</p>
+</blockquote>
+<p>[TOC]</p>
+<h3 id="步骤总结"><a href="#步骤总结" class="headerlink" title="步骤总结"></a>步骤总结</h3><ol>
+<li>standby系统配置</li>
+<li>打包软件并拷贝</li>
+<li>解压后的操作</li>
+<li>主库参数修改及备份</li>
+<li>备库参数修改及还原</li>
+<li>开启日志应用</li>
+<li>问题处理</li>
+</ol>
+<h3 id="环境说明"><a href="#环境说明" class="headerlink" title="环境说明"></a>环境说明</h3><p><strong>primary</strong>：</p>
+<p>​        version：Oracle 10g 10.2.0.3</p>
+<p>​        instance_name：member</p>
+<p>​        db_unique_name：MEMSTD2</p>
+<p>​        OS：CentOS 5.6</p>
+<p><strong>standby:</strong></p>
+<p>​        version：Oracle 10g 10.2.0.3</p>
+<p>​        instance_name：memberdg</p>
+<p>​        db_unique_name：MEMBERDG</p>
+<p>​        OS：CentOS 5.6</p>
+<h3 id="standby配置"><a href="#standby配置" class="headerlink" title="standby配置"></a>standby配置</h3><ol>
+<li><strong>操作系统参数调整</strong></li>
+</ol>
+<p>略。正常配置即可。</p>
+<ol start="2">
+<li><strong>添加用户和组</strong></li>
+</ol>
+<p><code>groupadd oinstall</code></p>
+<p><code>groupadd dba</code></p>
+<p><code>useradd -g oinstall -G dba oracle</code></p>
+<p><code>passwd oracle</code></p>
+<ol start="3">
+<li><strong>修改.bash_profile</strong></li>
+</ol>
+<p>从primary拷贝过来</p>
+<p><code>scp ~/.bash_profile standby:$PWD</code></p>
+<p>也可手动修改</p>
+<h3 id="打包软件并拷贝"><a href="#打包软件并拷贝" class="headerlink" title="打包软件并拷贝"></a>打包软件并拷贝</h3><ol>
+<li><strong>打包软件</strong></li>
+</ol>
+<p><code>tar -zcpf oracle.tar.gz /oracle</code></p>
+<ol start="2">
+<li><strong>传输文件</strong></li>
+</ol>
+<p><code>scp oracle.tar.gz standby:/data/software</code></p>
+<ol start="3">
+<li><strong>解压软件</strong></li>
+</ol>
+<p><code>tar -zxf oracle.tar.gz -C /oracle</code></p>
+<ol start="4">
+<li><strong>权限管理</strong></li>
+</ol>
+<p>打包文件本身包含了权限，如果有问题也可以手动修改</p>
+<p><code>chown -R oracle:oinstall /oracle</code></p>
+<ol start="5">
+<li><strong>执行脚本</strong></li>
+</ol>
+<p><strong>oralce</strong>用户下执行：</p>
+<p><code>relink all</code></p>
+<p><code>sh $ORACLE_HOME/install/changePerm.sh</code></p>
+<p><strong>root</strong>用户下执行：</p>
+<p><code>sh $ORACLE_HOME/root.sh</code></p>
+<h3 id="主库参数修改及备份"><a href="#主库参数修改及备份" class="headerlink" title="主库参数修改及备份"></a>主库参数修改及备份</h3><p>下列操作如未特别说明，默认在主库操作</p>
+<ol>
+<li><strong>开启强制日志记录</strong></li>
+</ol>
+<p>保证DataGuard的可恢复性，强制数据库在任何状态下都必须记录日志</p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> force_logging <span class="hljs-keyword">from</span> v$database;
+
+<span class="hljs-comment">-- 返回值为NO，则执行该语句开启</span>
+<span class="hljs-keyword">alter</span> database force logging;</code></pre></div>
+
+<ol start="2">
+<li><strong>修改参数文件</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">SET</span> LOG_ARCHIVE_CONFIG<span class="hljs-operator">=</span><span class="hljs-string">&#x27;DG_CONFIG=(MEMSTD2,MEMBERDG)&#x27;</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">SET</span> LOG_ARCHIVE_DEST_2<span class="hljs-operator">=</span><span class="hljs-string">&#x27;SERVICE=MEMBERDG LGWR ASYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLES) DB_UNIQUE_NAME=MEMBERDG&#x27;</span>;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">SET</span> LOG_ARCHIVE_DEST_STATE_1<span class="hljs-operator">=</span>ENABLE;
+<span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">SET</span> LOG_ARCHIVE_DEST_STATE_2<span class="hljs-operator">=</span>ENABLE;</code></pre></div>
+
+<ol start="3">
+<li><strong>修改tnsnames.ora配置</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-comment">-- 添加以下内容</span>
+<span class="hljs-keyword">MEMBER</span> <span class="hljs-operator">=</span>
+  (DESCRIPTION <span class="hljs-operator">=</span>
+    (ADDRESS <span class="hljs-operator">=</span> (PROTOCOL <span class="hljs-operator">=</span> TCP)(HOST <span class="hljs-operator">=</span> <span class="hljs-keyword">primary</span>)(PORT <span class="hljs-operator">=</span> <span class="hljs-number">1521</span>))
+    (CONNECT_DATA <span class="hljs-operator">=</span>
+      (SERVER <span class="hljs-operator">=</span> DEDICATED)
+      (SERVICE_NAME <span class="hljs-operator">=</span> member1)
+    )
+  )
+
+MEMBERDG <span class="hljs-operator">=</span>
+  (DESCRIPTION <span class="hljs-operator">=</span>
+    (ADDRESS_LIST <span class="hljs-operator">=</span>
+      (ADDRESS <span class="hljs-operator">=</span> (PROTOCOL <span class="hljs-operator">=</span> TCP)(HOST <span class="hljs-operator">=</span> standby)(PORT <span class="hljs-operator">=</span> <span class="hljs-number">1521</span>))
+    )
+    (CONNECT_DATA <span class="hljs-operator">=</span>
+      (SERVER <span class="hljs-operator">=</span> DEDICATED)
+      (SERVICE_NAME <span class="hljs-operator">=</span> memberdg)
+    )
+  )</code></pre></div>
+
+<ol start="4">
+<li><strong>创建standby redo log</strong></li>
+</ol>
+<p>建议比online redo log多一组，size相同</p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">21</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2101.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">22</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2201.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">23</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2301.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">24</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2401.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">25</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2501.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">26</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2601.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">27</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2701.log&#x27;</span>) size <span class="hljs-number">500</span>m;</code></pre></div>
+
+<ol start="5">
+<li><strong>使用rman备份主库</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">rman target <span class="hljs-operator">/</span>
+
+run&#123;
+	<span class="hljs-keyword">allocate</span> channel ch1 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch2 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch3 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch4 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch5 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch6 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch7 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch8 device type disk;
+	backup DATABASE include <span class="hljs-keyword">CURRENT</span> controlfile format <span class="hljs-string">&#x27;/data1/backup/member_%d_%T_%s_%p&#x27;</span>;
+	<span class="hljs-keyword">release</span> channel ch1;
+	<span class="hljs-keyword">release</span> channel ch2;
+	<span class="hljs-keyword">release</span> channel ch3;
+	<span class="hljs-keyword">release</span> channel ch4;
+	<span class="hljs-keyword">release</span> channel ch5;
+	<span class="hljs-keyword">release</span> channel ch6;
+	<span class="hljs-keyword">release</span> channel ch7;
+	<span class="hljs-keyword">release</span> channel ch8;
+&#125;</code></pre></div>
+
+<ol start="6">
+<li><strong>拷贝备份文件至standby</strong></li>
+</ol>
+<p><code>scp /data1/backup/* standby:$PWD</code></p>
+<h3 id="备库参数修改及还原"><a href="#备库参数修改及还原" class="headerlink" title="备库参数修改及还原"></a>备库参数修改及还原</h3><p>下列操作如未特别说明，默认在主库操作</p>
+<ol>
+<li><strong>参数文件配置</strong></li>
+</ol>
+<p>在<strong>primary</strong>生成pfile参数文件</p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> pfile <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;/data1/backup/pfile.ora&#x27;</span> <span class="hljs-keyword">from</span> spfile;</code></pre></div>
+
+<p>拷贝至standby</p>
+<p><code>scp /data1/backup/pfile.ora standby:/data/backup/</code></p>
+<p><strong>standby</strong>生成spfile文件</p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> spfile <span class="hljs-keyword">from</span> pfile <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;/data/backup/pfile.ora&#x27;</span>;</code></pre></div>
+
+<p>手动创建参数文件中指定的audit_file_dest、background_dump_dest、core_dump_dest、db_recovery_file_dest、user_dump_dest等目录</p>
+<p>启动实例至nomount</p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">startup nomount</code></pre></div>
+
+<p>修改备库参数</p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> db_unique_name <span class="hljs-operator">=</span> memberdg <span class="hljs-keyword">scope</span><span class="hljs-operator">=</span>spfile;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> log_archive_config<span class="hljs-operator">=</span><span class="hljs-string">&#x27;DG_CONFIG=(MEMSTD2,MEMBERDG)&#x27;</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> LOG_ARCHIVE_DEST_2<span class="hljs-operator">=</span><span class="hljs-string">&#x27;SERVICE=MEMSTD2 LGWR ASYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) DB_UNIQUE_NAME=MEMSTD2&#x27;</span>;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> LOG_ARCHIVE_DEST_STATE_1<span class="hljs-operator">=</span>ENABLE;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> LOG_ARCHIVE_DEST_STATE_2<span class="hljs-operator">=</span>DEFER;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> remote_login_passwordfile<span class="hljs-operator">=</span><span class="hljs-string">&#x27;EXCLUSIVE&#x27;</span> <span class="hljs-keyword">scope</span><span class="hljs-operator">=</span>spfile;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> DB_FILE_NAME_CONVERT<span class="hljs-operator">=</span><span class="hljs-string">&#x27;/data/member/&#x27;</span>,<span class="hljs-string">&#x27;/data/memberdg/&#x27;</span>,<span class="hljs-string">&#x27;/data1/member/&#x27;</span>,<span class="hljs-string">&#x27;/data/memberdg/&#x27;</span> <span class="hljs-keyword">scope</span><span class="hljs-operator">=</span>spfile;
+<span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">set</span> LOG_FILE_NAME_CONVERT<span class="hljs-operator">=</span><span class="hljs-string">&#x27;/data/member/&#x27;</span>,<span class="hljs-string">&#x27;/data/memberdg/&#x27;</span>,<span class="hljs-string">&#x27;/data1/member/&#x27;</span>,<span class="hljs-string">&#x27;/data/memberdg/&#x27;</span> <span class="hljs-keyword">scope</span><span class="hljs-operator">=</span>spfile;</code></pre></div>
+
+<p><code>shutdown</code></p>
+<ol start="2">
+<li><strong>配置控制文件</strong></li>
+</ol>
+<p><strong>primary</strong>执行</p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">alter</span> database <span class="hljs-keyword">create</span> standby controlfile <span class="hljs-keyword">as</span> <span class="hljs-string">&#x27;/data1/backup/ctl.bak&#x27;</span>;</code></pre></div>
+
+<p><code>scp /data1/backup/ctl.bak standby:/data/backup/</code></p>
+<p>备库将该文件拷贝至对应目录并改名</p>
+<p>将备库起到mount状态</p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">startup mount</code></pre></div>
+
+<ol start="3">
+<li><strong>使用rman进行还原</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">rman target <span class="hljs-operator">/</span>
+
+catalog <span class="hljs-keyword">start</span> <span class="hljs-keyword">with</span> <span class="hljs-string">&#x27;/data/backup/&#x27;</span>;
+
+run&#123;
+	<span class="hljs-keyword">allocate</span> channel ch1 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch2 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch3 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch4 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch5 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch6 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch7 device type disk;
+	<span class="hljs-keyword">allocate</span> channel ch8 device type disk;
+	restore database;
+	<span class="hljs-keyword">release</span> channel ch1;
+	<span class="hljs-keyword">release</span> channel ch2;
+	<span class="hljs-keyword">release</span> channel ch3;
+	<span class="hljs-keyword">release</span> channel ch4;
+	<span class="hljs-keyword">release</span> channel ch5;
+	<span class="hljs-keyword">release</span> channel ch6;
+	<span class="hljs-keyword">release</span> channel ch7;
+	<span class="hljs-keyword">release</span> channel ch8;
+&#125;</code></pre></div>
+
+<ol start="4">
+<li><strong>创建standby redo log</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">21</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2101.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">22</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2201.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">23</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2301.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">24</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2401.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">25</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2501.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">26</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2601.log&#x27;</span>) size <span class="hljs-number">500</span>m;
+<span class="hljs-keyword">alter</span> database <span class="hljs-keyword">add</span> standby logfile <span class="hljs-keyword">group</span> <span class="hljs-number">27</span> (<span class="hljs-string">&#x27;/data/memberdg/std_log_2701.log&#x27;</span>) size <span class="hljs-number">500</span>m;</code></pre></div>
+
+<ol start="5">
+<li><strong>修改tnsnames.ora</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">MEMBER</span> <span class="hljs-operator">=</span>
+  (DESCRIPTION <span class="hljs-operator">=</span>
+    (ADDRESS <span class="hljs-operator">=</span> (PROTOCOL <span class="hljs-operator">=</span> TCP)(HOST <span class="hljs-operator">=</span><span class="hljs-number">162.14</span><span class="hljs-number">.136</span><span class="hljs-number">.65</span>)(PORT <span class="hljs-operator">=</span> <span class="hljs-number">1521</span>))
+    (CONNECT_DATA <span class="hljs-operator">=</span>
+      (SERVER <span class="hljs-operator">=</span> DEDICATED)
+      (SERVICE_NAME <span class="hljs-operator">=</span> member1)
+    )
+  )
+
+MEMBERDG <span class="hljs-operator">=</span>
+  (DESCRIPTION <span class="hljs-operator">=</span>
+    (ADDRESS_LIST <span class="hljs-operator">=</span>
+      (ADDRESS <span class="hljs-operator">=</span> (PROTOCOL <span class="hljs-operator">=</span> TCP)(HOST <span class="hljs-operator">=</span> <span class="hljs-number">162.14</span><span class="hljs-number">.135</span><span class="hljs-number">.231</span>)(PORT <span class="hljs-operator">=</span> <span class="hljs-number">1521</span>))
+    )
+    (CONNECT_DATA <span class="hljs-operator">=</span>
+      (SERVER <span class="hljs-operator">=</span> DEDICATED)
+      (SERVICE_NAME <span class="hljs-operator">=</span> memberdg)
+    )
+  )</code></pre></div>
+
+<ol start="6">
+<li><strong>开启force logging</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> force_logging <span class="hljs-keyword">from</span> v$database;
+
+<span class="hljs-keyword">alter</span> database force logging;</code></pre></div>
+
+<ol start="7">
+<li><strong>添加静态监听</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">SID_LIST_LISTENER <span class="hljs-operator">=</span>
+ (SID_LIST <span class="hljs-operator">=</span>
+      (SID_DESC <span class="hljs-operator">=</span>
+        (GLOBAL_DBNAME <span class="hljs-operator">=</span> MEMBERDG)
+        (ORACLE_HOME <span class="hljs-operator">=</span> <span class="hljs-operator">/</span>oracle<span class="hljs-operator">/</span>app<span class="hljs-operator">/</span>product<span class="hljs-operator">/</span><span class="hljs-number">10.0</span><span class="hljs-number">.2</span><span class="hljs-operator">/</span>db_1)
+        (SID_NAME <span class="hljs-operator">=</span> memberdg)
+      )
+)</code></pre></div>
+
+
+
+<h3 id="开启日志应用"><a href="#开启日志应用" class="headerlink" title="开启日志应用"></a>开启日志应用</h3><ol>
+<li><strong>tnsping检查主备通信</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">tnsping <span class="hljs-keyword">primary</span>
+tnsping standby</code></pre></div>
+
+<ol start="2">
+<li><strong>备库开启日志应用</strong></li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-keyword">alter</span> database recover managed standby database <span class="hljs-keyword">using</span> <span class="hljs-keyword">current</span> logfile <span class="hljs-keyword">disconnect</span> <span class="hljs-keyword">from</span> session ;</code></pre></div>
+
+<ol start="3">
+<li>检查应用情况</li>
+</ol>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-comment">-- 检查alert日志</span>
+
+<span class="hljs-comment">-- 检查进程</span>
+<span class="hljs-keyword">select</span> process,status,sequence#,block# <span class="hljs-keyword">from</span> gv$managed_standby;</code></pre></div>
+
+
+
+<h3 id="问题处理"><a href="#问题处理" class="headerlink" title="问题处理"></a>问题处理</h3><ol>
+<li><strong>alert日志报错如下：</strong></li>
+</ol>
+<p><img src="https://gitee.com/coveyzy/imgs/raw/master/img/202108231422599.png" srcset="/img/loading.gif" lazyload alt="image-20210823142243851"></p>
+<p><strong>解决办法：</strong></p>
+<p>如果设置有<code>fal_client</code>和<code>fal_server</code>参数，DG会自动寻找缺失的日志，前提是日志文件没被覆盖或归档文件还在。</p>
+<p>这里因为归档已经不在了，只能通过基于SCN的增量备份后进行恢复，具体步骤如下：</p>
+<p>（1）<strong>确定SCN</strong></p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql"><span class="hljs-comment">-- 执行以下语句，哪个值小就从哪个开始增备</span>
+<span class="hljs-keyword">select</span> <span class="hljs-built_in">min</span>(first_nonlogged_scn) <span class="hljs-keyword">from</span> v$datafile <span class="hljs-keyword">where</span> first_nonlogged_scn <span class="hljs-operator">&gt;</span> <span class="hljs-number">0</span>;
+<span class="hljs-comment">-- 可能不会有返回值，则以下面的返回值为开始SCN</span>
+
+<span class="hljs-keyword">select</span> current_scn <span class="hljs-keyword">from</span> v$database;</code></pre></div>
+
+<p>（2）<strong>主库执行增量备份</strong></p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">backup incremental <span class="hljs-keyword">from</span> scn <span class="hljs-number">48310199829</span> database format <span class="hljs-string">&#x27;/data1/backup/archivedlog_%U&#x27;</span>;
+
+<span class="hljs-comment">-- 备份控制文件</span>
+backup <span class="hljs-keyword">current</span> controlfile <span class="hljs-keyword">for</span> standby format <span class="hljs-string">&#x27;/data1/backup/controlfile.bak&#x27;</span>;</code></pre></div>
+
+<p>（3）<strong>恢复数据库</strong></p>
+<div class="hljs code-wrapper"><pre><code class="hljs sql">recover database noredo;
+
+restore standby controlfile <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;/data/backup/controlfile.bak&#x27;</span>;</code></pre></div>
+
+<p>（4）<strong>重新开启日志应用</strong></p>
+<ol start="2">
+<li><strong>备库需要手动创建standby redo log</strong></li>
+</ol>
+<p><img src="https://gitee.com/coveyzy/imgs/raw/master/img/202108231437761.png" srcset="/img/loading.gif" lazyload alt="image-20210823143745687"></p>
+<p>还有一些小问题，没有及时记录，就不bb了。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/DataGuard/">DataGuard</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Oracle-DataGuard/">Oracle DataGuard</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/08/12/arch-sql/">
+                        <span class="hidden-mobile"></span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <span>Coveyzy</span></a> <i class="iconfont icon-love"></i> <span>Gy</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.2/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/local-search.xml";
+      $('#local-search-input').on('click', function() {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      });
+      $('#modalSearch').on('shown.bs.modal', function() {
+        $('#local-search-input').focus();
+      });
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?0e72dfeefd44eb1c4e004d18d1d97438";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
