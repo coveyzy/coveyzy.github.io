@@ -28,7 +28,7 @@
 <meta property="og:image" content="https://gitee.com/coveyzy/imgs/raw/master/img/202108231422599.png">
 <meta property="og:image" content="https://gitee.com/coveyzy/imgs/raw/master/img/202108231437761.png">
 <meta property="article:published_time" content="2021-08-23T06:46:38.000Z">
-<meta property="article:modified_time" content="2021-08-24T08:13:12.886Z">
+<meta property="article:modified_time" content="2021-08-29T01:46:34.444Z">
 <meta property="article:author" content="Coveyzy">
 <meta property="article:tag" content="Oracle DataGuard">
 <meta name="twitter:card" content="summary">
@@ -519,10 +519,10 @@
 <p>（2）<strong>主库执行增量备份</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">backup incremental <span class="keyword">from</span> scn <span class="number">48310199829</span> database format <span class="string">&#x27;/data1/backup/archivedlog_%U&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 备份控制文件</span></span><br><span class="line">backup <span class="keyword">current</span> controlfile <span class="keyword">for</span> standby format <span class="string">&#x27;/data1/backup/controlfile.bak&#x27;</span>;</span><br></pre></td></tr></table></figure>
 
-<p>（3）<strong>恢复数据库</strong></p>
+<p>（3）<strong>备库恢复数据库</strong></p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">recover database noredo;</span><br><span class="line"></span><br><span class="line">restore standby controlfile <span class="keyword">from</span> <span class="string">&#x27;/data/backup/controlfile.bak&#x27;</span>;</span><br></pre></td></tr></table></figure>
 
-<p>（4）<strong>重新开启日志应用</strong></p>
+<p>（4）<strong>备库重新开启日志应用</strong></p>
 <ol start="2">
 <li><strong>备库需要手动创建standby redo log</strong></li>
 </ol>
