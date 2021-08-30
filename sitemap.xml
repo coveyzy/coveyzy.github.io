@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://coveyzy.vip/2021/08/30/%E5%8A%A8%E6%80%81%E7%9B%91%E5%90%AC%E4%B8%8E%E9%9D%99%E6%80%81%E7%9B%91%E5%90%AC/</loc>
+    
+    <lastmod>2021-08-30</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://coveyzy.vip/2021/08/23/2021-08-23-%E9%80%9A%E8%BF%87RMAN%E6%96%B9%E5%BC%8F%E6%90%AD%E5%BB%BAOracle-10G-DataGuard/</loc>
     
     <lastmod>2021-08-29</lastmod>
@@ -67,7 +74,7 @@
 
   <url>
     <loc>http://coveyzy.vip/</loc>
-    <lastmod>2021-08-29</lastmod>
+    <lastmod>2021-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -75,21 +82,35 @@
   
   <url>
     <loc>http://coveyzy.vip/tags/RAC/</loc>
-    <lastmod>2021-08-29</lastmod>
+    <lastmod>2021-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://coveyzy.vip/tags/%E4%BF%AE%E5%A4%8D/</loc>
-    <lastmod>2021-08-29</lastmod>
+    <lastmod>2021-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://coveyzy.vip/tags/Oracle-DataGuard/</loc>
-    <lastmod>2021-08-29</lastmod>
+    <lastmod>2021-08-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://coveyzy.vip/tags/Oracle-Net/</loc>
+    <lastmod>2021-08-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://coveyzy.vip/tags/%E7%9B%91%E5%90%AC/</loc>
+    <lastmod>2021-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -98,14 +119,21 @@
   
   <url>
     <loc>http://coveyzy.vip/categories/ORACLE/</loc>
-    <lastmod>2021-08-29</lastmod>
+    <lastmod>2021-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://coveyzy.vip/categories/DataGuard/</loc>
-    <lastmod>2021-08-29</lastmod>
+    <lastmod>2021-08-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://coveyzy.vip/categories/Oracle/</loc>
+    <lastmod>2021-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
