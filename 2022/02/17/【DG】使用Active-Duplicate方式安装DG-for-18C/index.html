@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>【DG】使用Active Duplicate方式安装DG for 18C | Coveyzy</title>
+  <meta name="description" content="18c dg install by using Active Duplicate Step by step to config oracle 18c data guard enviroment by using Active Duplicate.  主库启动 force logging123col name for a20select force_logging from v$database;a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【DG】使用Active Duplicate方式安装DG for 18C">
+<meta property="og:url" content="http://coveyzy.vip/2022/02/17/%E3%80%90DG%E3%80%91%E4%BD%BF%E7%94%A8Active-Duplicate%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85DG-for-18C/index.html">
+<meta property="og:site_name" content="Coveyzy">
+<meta property="og:description" content="18c dg install by using Active Duplicate Step by step to config oracle 18c data guard enviroment by using Active Duplicate.  主库启动 force logging123col name for a20select force_logging from v$database;a">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-02-17T02:30:53.000Z">
+<meta property="article:modified_time" content="2022-02-17T02:57:37.849Z">
+<meta property="article:author" content="Coveyzy">
+<meta property="article:tag" content="DG">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="http://coveyzy.vip/2022/02/17/%E3%80%90DG%E3%80%91%E4%BD%BF%E7%94%A8Active-Duplicate%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85DG-for-18C/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="Coveyzy" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://coveyzy.vip" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">Coveyzy</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">DBA &amp; Coder</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Guiyang, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/coveyzy" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/coveyzy" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/coveyzy" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>Show you my error !</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/DG/">DG</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/DG/" rel="tag">DG</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Oracle-Net/" rel="tag">Oracle Net</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RAC/" rel="tag">RAC</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BF%AE%E5%A4%8D/" rel="tag">修复</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%9B%91%E5%90%AC/" rel="tag">监听</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/DG/" style="font-size: 14px;">DG</a> <a href="/tags/Oracle-Net/" style="font-size: 13px;">Oracle Net</a> <a href="/tags/RAC/" style="font-size: 13px;">RAC</a> <a href="/tags/%E4%BF%AE%E5%A4%8D/" style="font-size: 13px;">修复</a> <a href="/tags/%E7%9B%91%E5%90%AC/" style="font-size: 13px;">监听</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/DG/">DG</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/02/17/%E3%80%90DG%E3%80%91%E4%BD%BF%E7%94%A8Active-Duplicate%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85DG-for-18C/" class="title">【DG】使用Active Duplicate方式安装DG for 18C</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-02-17T02:30:53.000Z" itemprop="datePublished">2022-02-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Oracle/">Oracle</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/08/30/%E5%8A%A8%E6%80%81%E7%9B%91%E5%90%AC%E4%B8%8E%E9%9D%99%E6%80%81%E7%9B%91%E5%90%AC/" class="title">动态监听与静态监听</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-08-30T08:22:27.000Z" itemprop="datePublished">2021-08-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/DG/">DG</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/08/23/2021-08-23-%E9%80%9A%E8%BF%87RMAN%E6%96%B9%E5%BC%8F%E6%90%AD%E5%BB%BAOracle-10G-DataGuard/" class="title">通过RMAN方式搭建Oracle 10G DataGuard</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-08-23T06:46:38.000Z" itemprop="datePublished">2021-08-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Oracle/">Oracle</a>
+              </p>
+              <p class="item-title">
+                <a href="/2021/07/07/2021-07-07-%E4%BD%BF%E7%94%A8permission-pl%E8%84%9A%E6%9C%AC%E4%BF%AE%E5%A4%8D%E8%8A%82%E7%82%B9%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90/" class="title">使用permission.pl脚本修复节点文件权限</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-07-07T02:58:22.000Z" itemprop="datePublished">2021-07-07</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-【DG】使用Active-Duplicate方式安装DG-for-18C" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      【DG】使用Active Duplicate方式安装DG for 18C
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/02/17/%E3%80%90DG%E3%80%91%E4%BD%BF%E7%94%A8Active-Duplicate%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85DG-for-18C/" class="article-date">
+	  <time datetime="2022-02-17T02:30:53.000Z" itemprop="datePublished">2022-02-17</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/DG/">DG</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/DG/" rel="tag">DG</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/02/17/%E3%80%90DG%E3%80%91%E4%BD%BF%E7%94%A8Active-Duplicate%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85DG-for-18C/" class="leancloud_visitors"  data-flag-title="【DG】使用Active Duplicate方式安装DG for 18C">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/02/17/%E3%80%90DG%E3%80%91%E4%BD%BF%E7%94%A8Active-Duplicate%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85DG-for-18C/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 618(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 3(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="18c-dg-install-by-using-Active-Duplicate"><a href="#18c-dg-install-by-using-Active-Duplicate" class="headerlink" title="18c dg install by using Active Duplicate"></a>18c dg install by using Active Duplicate</h3><blockquote>
+<p>Step by step to config oracle 18c data guard enviroment by using Active Duplicate.</p>
+</blockquote>
+<h5 id="主库启动-force-logging"><a href="#主库启动-force-logging" class="headerlink" title="主库启动 force logging"></a>主库启动 force logging</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">col name <span class="keyword">for</span> a20</span><br><span class="line"><span class="keyword">select</span> force_logging <span class="keyword">from</span> v$database;</span><br><span class="line"><span class="keyword">alter</span> database force logging; </span><br></pre></td></tr></table></figure>
+
+<h5 id="主库启动归档模式"><a href="#主库启动归档模式" class="headerlink" title="主库启动归档模式"></a>主库启动归档模式</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">archive log list</span><br><span class="line"></span><br><span class="line"># 开启方式</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> log_archive_dest_1<span class="operator">=</span><span class="string">&#x27;location=/u01/archivelog/&#x27;</span> <span class="keyword">scope</span><span class="operator">=</span>spfile ;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> log_archive_format<span class="operator">=</span><span class="string">&#x27;arch_%t_%s_%r.arc&#x27;</span> <span class="keyword">scope</span><span class="operator">=</span>spfile;</span><br><span class="line">shutdown immediate</span><br><span class="line">startup mount</span><br><span class="line"><span class="keyword">alter</span> database archivelog;</span><br><span class="line"><span class="keyword">alter</span> database <span class="keyword">open</span>;</span><br><span class="line">archive log list;</span><br></pre></td></tr></table></figure>
+
+<h5 id="主库添加-standby-log"><a href="#主库添加-standby-log" class="headerlink" title="主库添加 standby log"></a>主库添加 standby log</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">group</span>#,<span class="keyword">member</span>,type <span class="keyword">from</span> v$logfile <span class="keyword">order</span> <span class="keyword">by</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">group</span>#,bytes<span class="operator">/</span><span class="number">1024</span><span class="operator">/</span><span class="number">1024</span> <span class="keyword">from</span> v$standby_log;</span><br><span class="line"></span><br><span class="line"># 大小相同，数量比online redo多一组</span><br><span class="line"><span class="keyword">alter</span> database <span class="keyword">add</span> standby logfile <span class="keyword">group</span> <span class="number">30</span> size <span class="number">1</span>g;</span><br><span class="line"><span class="keyword">alter</span> database <span class="keyword">add</span> standby logfile <span class="keyword">group</span> <span class="number">31</span> size <span class="number">1</span>g;</span><br><span class="line"><span class="keyword">alter</span> database <span class="keyword">add</span> standby logfile <span class="keyword">group</span> <span class="number">32</span> size <span class="number">1</span>g;</span><br><span class="line"><span class="keyword">alter</span> database <span class="keyword">add</span> standby logfile <span class="keyword">group</span> <span class="number">33</span> size <span class="number">1</span>g;</span><br><span class="line"><span class="keyword">alter</span> database <span class="keyword">add</span> standby logfile <span class="keyword">group</span> <span class="number">34</span> size <span class="number">1</span>g;</span><br><span class="line"><span class="keyword">alter</span> database <span class="keyword">add</span> standby logfile <span class="keyword">group</span> <span class="number">35</span> size <span class="number">1</span>g;</span><br></pre></td></tr></table></figure>
+
+<h5 id="设置主库相关参数"><a href="#设置主库相关参数" class="headerlink" title="设置主库相关参数"></a>设置主库相关参数</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">SYSTEM</span> <span class="keyword">SET</span> LOG_ARCHIVE_CONFIG<span class="operator">=</span><span class="string">&#x27;DG_CONFIG=(memcdb,memdbstd,memdbstd2)&#x27;</span>;</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">SYSTEM</span> <span class="keyword">SET</span> LOG_ARCHIVE_DEST_5<span class="operator">=</span><span class="string">&#x27;SERVICE=memdbstd2 LGWR ASYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLES) DB_UNIQUE_NAME=memdbstd2&#x27;</span>;</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">SYSTEM</span> <span class="keyword">SET</span> LOG_ARCHIVE_DEST_STATE_5<span class="operator">=</span>ENABLE;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> fal_client<span class="operator">=</span><span class="string">&#x27;MEMCDB&#x27;</span>;</span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">system</span> <span class="keyword">set</span> fal_server<span class="operator">=</span><span class="string">&#x27;MEMDBSTD2&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h5 id="备库配置监听并启动"><a href="#备库配置监听并启动" class="headerlink" title="备库配置监听并启动"></a>备库配置监听并启动</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">SID_LIST_LISTENER <span class="operator">=</span></span><br><span class="line">  (SID_LIST <span class="operator">=</span></span><br><span class="line">    (SID_DESC <span class="operator">=</span></span><br><span class="line">      (GLOBAL_DBNAME <span class="operator">=</span> memdbstd2)</span><br><span class="line">      (ORACLE_HOME <span class="operator">=</span> <span class="operator">/</span>u01<span class="operator">/</span>app<span class="operator">/</span>oracle<span class="operator">/</span>product<span class="operator">/</span><span class="number">18.3</span><span class="number">.0</span><span class="operator">/</span>db_1)</span><br><span class="line">      (SID_NAME <span class="operator">=</span> memdbstd2)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">LISTENER <span class="operator">=</span></span><br><span class="line">  (DESCRIPTION_LIST <span class="operator">=</span></span><br><span class="line">    (DESCRIPTION <span class="operator">=</span></span><br><span class="line">      (ADDRESS <span class="operator">=</span> (PROTOCOL <span class="operator">=</span> TCP)(HOST <span class="operator">=</span> memdbstd2)(PORT <span class="operator">=</span> <span class="number">1522</span>))</span><br><span class="line">      (ADDRESS <span class="operator">=</span> (PROTOCOL <span class="operator">=</span> IPC)(KEY <span class="operator">=</span> EXTPROC1522))</span><br><span class="line">    )</span><br><span class="line">  )</span><br></pre></td></tr></table></figure>
+
+<h5 id="主备库配置-tnsnames"><a href="#主备库配置-tnsnames" class="headerlink" title="主备库配置 tnsnames"></a>主备库配置 tnsnames</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">primary</span> <span class="operator">=</span></span><br><span class="line">  (DESCRIPTION <span class="operator">=</span></span><br><span class="line">    (ADDRESS <span class="operator">=</span> (PROTOCOL <span class="operator">=</span> TCP)(HOST <span class="operator">=</span> <span class="keyword">primary</span>)(PORT <span class="operator">=</span> <span class="number">1522</span>))</span><br><span class="line">    (CONNECT_DATA <span class="operator">=</span></span><br><span class="line">      (SERVER <span class="operator">=</span> DEDICATED)</span><br><span class="line">      (SERVICE_NAME <span class="operator">=</span> <span class="keyword">primary</span>)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">standby <span class="operator">=</span></span><br><span class="line">  (DESCRIPTION <span class="operator">=</span></span><br><span class="line">    (ADDRESS <span class="operator">=</span> (PROTOCOL <span class="operator">=</span> TCP)(HOST <span class="operator">=</span> standby)(PORT <span class="operator">=</span> <span class="number">1522</span>))</span><br><span class="line">    (CONNECT_DATA <span class="operator">=</span></span><br><span class="line">      (SERVER <span class="operator">=</span> DEDICATED)</span><br><span class="line">      (SERVICE_NAME <span class="operator">=</span> standby)</span><br><span class="line">    )</span><br><span class="line">  )</span><br></pre></td></tr></table></figure>
+
+<h5 id="备库创建参数文件对应目录"><a href="#备库创建参数文件对应目录" class="headerlink" title="备库创建参数文件对应目录"></a>备库创建参数文件对应目录</h5><p>略</p>
+<h5 id="拷贝主库口令文件到备库"><a href="#拷贝主库口令文件到备库" class="headerlink" title="拷贝主库口令文件到备库"></a>拷贝主库口令文件到备库</h5><p>略</p>
+<h5 id="备库起到-nomount-状态"><a href="#备库起到-nomount-状态" class="headerlink" title="备库起到 nomount 状态"></a>备库起到 nomount 状态</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">startup nomount</span><br></pre></td></tr></table></figure>
+
+<h5 id="Active-duplicate"><a href="#Active-duplicate" class="headerlink" title="Active duplicate"></a>Active duplicate</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">export ORACLE_SID<span class="operator">=</span>memdbstd2</span><br><span class="line">rman target sys<span class="operator">/</span>oracle<span class="variable">@memcdb</span> auxiliary sys<span class="operator">/</span>oracle<span class="variable">@memdbstd2</span> log<span class="operator">=</span><span class="operator">/</span>u01<span class="operator">/</span>dg_duplicate_20211029.log <span class="operator">&lt;&lt;</span>EOF</span><br><span class="line">run &#123;</span><br><span class="line"> <span class="keyword">allocate</span> channel ch1 type disk;</span><br><span class="line"> <span class="keyword">allocate</span> channel ch2 type disk;</span><br><span class="line"> <span class="keyword">allocate</span> channel ch3 type disk;</span><br><span class="line"> <span class="keyword">allocate</span> channel ch4 type disk;</span><br><span class="line"> <span class="keyword">allocate</span> channel ch5 type disk;</span><br><span class="line"> <span class="keyword">allocate</span> channel ch6 type disk;</span><br><span class="line"> <span class="keyword">allocate</span> channel ch7 type disk;</span><br><span class="line"> <span class="keyword">allocate</span> channel ch8 type disk;</span><br><span class="line"> <span class="keyword">allocate</span> auxiliary channel stby type disk;</span><br><span class="line"> duplicate target database <span class="keyword">for</span> standby <span class="keyword">from</span> active database nofilenamecheck</span><br><span class="line">spfile</span><br><span class="line">   parameter_value_convert <span class="string">&#x27;MEMCDB&#x27;</span>,<span class="string">&#x27;MEMDBSTD2&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> db_unique_name<span class="operator">=</span><span class="string">&#x27;MEMDBSTD2&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> db_file_name_convert<span class="operator">=</span><span class="string">&#x27;/db/oradata/MEMCDB/&#x27;</span>,<span class="string">&#x27;/u01/oradata/MEMDBSTD2/&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> log_file_name_convert<span class="operator">=</span><span class="string">&#x27;/db/oradata/MEMCDB/&#x27;</span>,<span class="string">&#x27;/u01/oradata/MEMDBSTD2/&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> control_files<span class="operator">=</span><span class="string">&#x27;/u01/oradata/MEMDBSTD2/control01.ctl&#x27;</span>,<span class="string">&#x27;/u01/oradata/MEMDBSTD2/control02.ctl&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> log_archive_max_processes<span class="operator">=</span><span class="string">&#x27;4&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> fal_client<span class="operator">=</span><span class="string">&#x27;MEMDBSTD2&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> fal_server<span class="operator">=</span><span class="string">&#x27;MEMCDB&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> standby_file_management<span class="operator">=</span><span class="string">&#x27;AUTO&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> log_archive_config<span class="operator">=</span><span class="string">&#x27;dg_config=(MEMCDB,MEMDBSTD2)&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> log_archive_dest_1<span class="operator">=</span><span class="string">&#x27;LOCATION=/u01/archivelog VALID_FOR=(ALL_LOGFILES,ALL_ROLES) DB_UNIQUE_NAME=MEMDBSTD2&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> log_archive_dest_2<span class="operator">=</span><span class="string">&#x27;SERVICE=memcdb LGWR ASYNC VALID_FOR=(ONLINE_LOGFILES,PRIMARY_ROLE) DB_UNIQUE_NAME=memcdb&#x27;</span></span><br><span class="line">   <span class="keyword">set</span> db_create_file_dest<span class="operator">=</span><span class="string">&#x27;/u01/oradata/MEMDBSTD2/&#x27;</span></span><br><span class="line">;</span><br><span class="line"><span class="keyword">release</span> channel ch1;</span><br><span class="line"><span class="keyword">release</span> channel ch2;</span><br><span class="line"><span class="keyword">release</span> channel ch3;</span><br><span class="line"><span class="keyword">release</span> channel ch4;</span><br><span class="line"><span class="keyword">release</span> channel ch5;</span><br><span class="line"><span class="keyword">release</span> channel ch6;</span><br><span class="line"><span class="keyword">release</span> channel ch7;</span><br><span class="line"><span class="keyword">release</span> channel ch8;</span><br><span class="line">&#125;</span><br><span class="line">exit;</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<h5 id="打开备库启动日志应用"><a href="#打开备库启动日志应用" class="headerlink" title="打开备库启动日志应用"></a>打开备库启动日志应用</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> open_mode <span class="keyword">from</span> v$database;</span><br><span class="line"><span class="keyword">alter</span> database <span class="keyword">open</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看主库</span></span><br><span class="line"><span class="keyword">select</span> log_mode,open_mode ,database_role <span class="keyword">from</span> v$database;</span><br><span class="line"><span class="comment">-- 查看备库</span></span><br><span class="line"><span class="keyword">select</span> log_mode,open_mode ,database_role <span class="keyword">from</span> v$database;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 启动日志应用</span></span><br><span class="line">recover managed standby database <span class="keyword">using</span> <span class="keyword">current</span> logfile <span class="keyword">disconnect</span> <span class="keyword">from</span> session;</span><br><span class="line"><span class="keyword">select</span> process,status,sequence#,block# <span class="keyword">from</span> v$managed_standby;</span><br><span class="line"><span class="keyword">select</span> name,<span class="keyword">value</span> <span class="keyword">from</span> v$dataguard_stats;</span><br></pre></td></tr></table></figure>
+
+
+
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://coveyzy.vip/2022/02/17/%E3%80%90DG%E3%80%91%E4%BD%BF%E7%94%A8Active-Duplicate%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85DG-for-18C/" title="【DG】使用Active Duplicate方式安装DG for 18C" target="_blank" rel="external">http://coveyzy.vip/2022/02/17/【DG】使用Active-Duplicate方式安装DG-for-18C/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://coveyzy.vip" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://coveyzy.vip" target="_blank"><span class="text-dark">Coveyzy</span><small class="ml-1x">DBA &amp; Coder</small></a></h3>
+        <div>野生DBA - 自由生长</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2021/08/30/%E5%8A%A8%E6%80%81%E7%9B%91%E5%90%AC%E4%B8%8E%E9%9D%99%E6%80%81%E7%9B%91%E5%90%AC/" title="动态监听与静态监听"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  <!-- Button trigger modal -->
+  <button type="button" class="btn btn-fancy btn-donate pop-onhover bg-gradient-warning" data-toggle="modal" data-target="#donateModal"><span>赏</span></button>
+  <!-- <div class="wave-icon wave-icon-danger btn-donate" data-toggle="modal" data-target="#donateModal">
+    <div class="wave-circle"><span class="icon"><i class="icon icon-bill"></i></span></div>
+  </div> -->
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+<!-- Modal -->
+<div class="modal modal-center modal-small modal-xs-full fade" id="donateModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content donate">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <div class="modal-body">
+        <div class="donate-box">
+          <div class="donate-head">
+            <p>感谢您的支持，我会继续努力的!</p>
+          </div>
+          <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="alipay">
+              <div class="donate-payimg">
+                <img src="/images/donate/alipayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开支付宝扫一扫，即可进行扫码打赏哦</p>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="wechatpay">
+              <div class="donate-payimg">
+                <img src="/images/donate/wechatpayimg.png" alt="扫码支持" title="扫一扫" />
+              </div>
+              <p class="text-muted mv">扫码打赏，你说多少就多少</p>
+              <p class="text-grey">打开微信扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+          <div class="donate-footer">
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active">
+                <a href="#alipay" id="alipay-tab" role="tab" data-toggle="tab" aria-controls="alipay" aria-expanded="true"><i class="icon icon-alipay"></i> 支付宝</a>
+              </li>
+              <li role="presentation" class="">
+                <a href="#wechatpay" role="tab" id="wechatpay-tab" data-toggle="tab" aria-controls="wechatpay" aria-expanded="false"><i class="icon icon-wepay"></i> 微信支付</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/coveyzy" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+        <li><a href="http://weibo.com/coveyzy" target="_blank" title="Weibo" data-toggle=tooltip data-placement=top><i class="icon icon-weibo"></i></a></li>
+        
+        <li><a href="https://twitter.com/coveyzy" target="_blank" title="Twitter" data-toggle=tooltip data-placement=top><i class="icon icon-twitter"></i></a></li>
+        
+    </ul>
+
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://coveyzy.vip" target="_blank"> Coveyzy </a>base on <a href="https://coveyzy.vip" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer>
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: true,
+    appId: 'UQT52pHag08jxzWJcNLqqa76-gzGzoHsz',
+    appKey: 'Bv3HIE1ysrML9rzBeowTrDDg',
+    placeholder: 'Say what you wanna say',
+    avatar: 'monsterid',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>
